@@ -1,5 +1,4 @@
 
-
 let help = 
 "help
 create [title] [content]
@@ -17,7 +16,7 @@ let rec todo repeat =
     let () = print_string "\nWelcome to the todo list: " in
       let inp = read_line() in
         let args = getargs inp in
-          let command = List.nth args 1 in
+          let command = List.nth args 0 in
             if command = "help" then
               let () = print_string help in todo repeat
             else if command = "create" then
