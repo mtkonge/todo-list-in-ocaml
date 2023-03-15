@@ -1,4 +1,0 @@
-(executable
- (public_name todo_list_in_ocaml)
- (name main)
- (libraries todo_list_in_ocaml))
