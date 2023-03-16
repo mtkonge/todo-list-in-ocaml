@@ -13,13 +13,27 @@ let multiline_user_input content =
 	Printf.fprintf oc "%s" content;
 	close_out oc;
 
-	Sys.command "vim /tmp/note.txt";
+	Sys.command "vim /tmp/note.txt" |> ignore;
 
 	let ic = open_in "/tmp/note.txt" in
 	let input = really_input_string ic (in_channel_length ic) in
 	close_in ic;
 	input
 
+let note_path name = Printf.sprintf "notes/%s.txt" name
+
+let note_contents name =
+	let ic = open_in (note_path name) in
+	let note = really_input_string ic (in_channel_length ic) in
+	close_in ic;
+	note
+
+let write_note name content =
+	let oc = open_out (note_path name) in
+	Printf.fprintf oc "%s" content;
+	close_out oc
+
+let note_exists name = Sys.file_exists (note_path name)
 
 let rec todo () =
 	print_string "\nWelcome to the todo list: ";
@@ -33,55 +47,43 @@ let rec todo () =
 			print_string help;
 			todo ()
 		| "create" ->
-			let filename = Printf.sprintf "notes/%s.txt" (List.nth args 1) in
-
-			if not (Sys.file_exists filename) then
-				let oc = open_out (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
-				Printf.fprintf oc "%s" (multiline_user_input "");
-				close_out oc;
+			if not (note_exists (List.nth args 1)) then begin
+				write_note (List.nth args 1) (multiline_user_input "");
 				print_string "File created"
-			else
+			end else
 				print_string "File already exists";
 
 			todo ()
 		| "delete" ->
-			let filename = Printf.sprintf "notes/%s.txt" (List.nth args 1) in
+			let filename = note_path (List.nth args 1) in
 
-			if Sys.file_exists filename then
-				let () = Sys.remove filename in
+			if Sys.file_exists filename then begin
+				Sys.remove filename;
 				print_string "File deleted"
-			else
+			end else
 				print_string "File doesn't exist";
 
 			todo ()
 		| "list" ->
 			let files = Sys.readdir "notes" in
-			let notes = List.filter (fun file -> Str.last_chars file 4 = ".txt") (Array.to_list files) in
-			let notes_string = String.concat "\n" (List.map (fun file -> String.sub file 0 ((String.length file) - 4)) notes) in
+			let filtered_notes = List.filter (fun file -> Str.last_chars file 4 = ".txt") (Array.to_list files) in
+			let notes_without_extensions = List.map (fun file -> String.sub file 0 ((String.length file) - 4)) filtered_notes in
+			let notes_string = String.concat "\n" notes_without_extensions in
 
 			print_string notes_string;
 
 			todo ()
 		| "read" ->
-			let ic = open_in (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
-			let note = really_input_string ic (in_channel_length ic) in
-
-			print_string note;
-			flush stdout;
-			close_in ic;
+			print_string (note_contents (List.nth args 1));
 
 			todo ()
 		| "edit" ->
-			let filename = (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
+			let note = List.nth args 1 in
 
-			if Sys.file_exists filename then
-				let ic = open_in (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
-				let note_string = really_input_string ic (in_channel_length ic) in
-				close_in ic;
+			if note_exists note then
+				let note_string = note_contents note in
+				write_note note (multiline_user_input note_string);
 
-				let oc = open_out (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
-				Printf.fprintf oc "%s" (multiline_user_input note_string);
-				close_out oc;
 				print_string "File updated"
 			else
 				print_string "File doesn't exist";
