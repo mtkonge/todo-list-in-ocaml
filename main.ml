@@ -18,9 +18,15 @@ let rec todo () =
           match command with
           | "help" -> print_string help; todo ()
           | "create" -> 
-            let oc = open_out (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
-              Printf.fprintf oc "%s\n" (List.nth (Str.bounded_split (Str.regexp " ") inp 3) 2);
-              close_out oc;
+            let filename = (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
+            if not (Sys.file_exists filename) then
+              let oc = open_out (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
+                Printf.fprintf oc "%s\n" (List.nth (Str.bounded_split (Str.regexp " ") inp 3) 2);
+                close_out oc;
+                print_string "File created";
+                todo ()
+            else
+              print_string "File already exists";
               todo ()
           | "delete" ->
             let filename = (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
