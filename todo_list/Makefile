@@ -1,2 +1,2 @@
 all:
-	ocamlc -I +str str.cma main.ml
+	dune exec _build/default/bin/main.exe
