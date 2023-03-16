@@ -39,9 +39,10 @@ let rec todo () =
                 todo ()
           | "list" ->
             let files = Sys.readdir "notes" in
-              let notes = List.filter (fun file -> Str.last_chars file 4 = ".txt") in
+              let notes = List.filter (fun file -> Str.last_chars file 4 = ".txt") (Array.to_list files) in
                 let notes_string = String.concat "\n" notes in
-                  Printf.printf notes_string
+                  print_string notes_string;
+                  todo ()
           | "read" -> 
             let ic = open_in (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
             let line = input_line ic in
