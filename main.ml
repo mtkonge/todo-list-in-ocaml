@@ -40,7 +40,7 @@ let rec todo () =
           | "list" ->
             let files = Sys.readdir "notes" in
               let notes = List.filter (fun file -> Str.last_chars file 4 = ".txt") (Array.to_list files) in
-                let notes_string = String.concat "\n" notes in
+                let notes_string = String.concat "\n" (List.map (fun file -> String.sub file 0 ((String.length file) - 4)) notes) in
                   print_string notes_string;
                   todo ()
           | "read" -> 
