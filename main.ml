@@ -37,7 +37,11 @@ let rec todo () =
               else
                 print_string "File doesn't exist";
                 todo ()
-          | "list" -> todo ()
+          | "list" ->
+            let files = Sys.readdir "notes" in
+              let notes = List.filter (fun file -> Str.last_chars file 4 = ".txt") in
+                let notes_string = String.concat "\n" notes in
+                  Printf.printf notes_string
           | "read" -> 
             let ic = open_in (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
             let line = input_line ic in
