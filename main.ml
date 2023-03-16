@@ -1,12 +1,14 @@
 let help =
 "help
 create [title] [content]
-delete [id]
+delete [title]
 list
-read [id]
-edit [id]"
+read [title]
+edit [title]"
 
 let extracted_args inp = Str.split (Str.regexp " ") inp
+
+
 
 let rec todo () =
   print_string "\nWelcome to the todo list: ";
@@ -22,7 +24,13 @@ let rec todo () =
               todo ()
           | "delete" -> todo ()
           | "list" -> todo ()
-          | "read" -> todo ()
+          | "read" -> 
+            let ic = open_in (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
+            let line = input_line ic in
+              print_endline line;
+              flush stdout;
+              close_in_noerr ic;
+              todo ()
           | "edit" -> todo ()
           | "quit" | "exit" -> ()
           | _ ->
