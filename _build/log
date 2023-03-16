@@ -1,0 +1,5 @@
+# dune init executable todo_list
+# OCAMLPARAM: unset
+# Shared cache: disabled
+# Workspace root: /home/mikkel/workspace/todo-list-in-ocaml
+# Auto-detected concurrency: 8
