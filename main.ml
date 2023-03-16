@@ -22,7 +22,15 @@ let rec todo () =
               Printf.fprintf oc "%s\n" (List.nth (Str.bounded_split (Str.regexp " ") inp 3) 2);
               close_out oc;
               todo ()
-          | "delete" -> todo ()
+          | "delete" ->
+            let filename = (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
+              if Sys.file_exists filename then
+                let () = Sys.remove filename in
+                print_string "File deleted";
+                todo ()
+              else
+                print_string "File doesn't exist";
+                todo ()
           | "list" -> todo ()
           | "read" -> 
             let ic = open_in (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
