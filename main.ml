@@ -1,12 +1,25 @@
 let help =
 "help
-create [title] [content]
+create [title]
 delete [title]
 list
 read [title]
-edit [title] [content]"
+edit [title]"
 
 let extracted_args inp = Str.split (Str.regexp " ") inp
+
+let multiline_user_input content =
+	let oc = open_out "/tmp/note.txt" in
+	Printf.fprintf oc "%s" content;
+	close_out oc;
+
+	Sys.command "vim /tmp/note.txt";
+
+	let ic = open_in "/tmp/note.txt" in
+	let input = really_input_string ic (in_channel_length ic) in
+	close_in ic;
+	input
+
 
 let rec todo () =
 	print_string "\nWelcome to the todo list: ";
@@ -24,7 +37,7 @@ let rec todo () =
 
 			if not (Sys.file_exists filename) then
 				let oc = open_out (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
-				Printf.fprintf oc "%s\n" (List.nth (Str.bounded_split (Str.regexp " ") inp 3) 2);
+				Printf.fprintf oc "%s" (multiline_user_input "");
 				close_out oc;
 				print_string "File created"
 			else
@@ -51,19 +64,23 @@ let rec todo () =
 			todo ()
 		| "read" ->
 			let ic = open_in (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
-			let line = input_line ic in
+			let note = really_input_string ic (in_channel_length ic) in
 
-			print_endline line;
+			print_string note;
 			flush stdout;
-			close_in_noerr ic;
+			close_in ic;
 
 			todo ()
 		| "edit" ->
 			let filename = (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
 
 			if Sys.file_exists filename then
+				let ic = open_in (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
+				let note_string = really_input_string ic (in_channel_length ic) in
+				close_in ic;
+
 				let oc = open_out (Printf.sprintf "notes/%s.txt" (List.nth args 1)) in
-				Printf.fprintf oc "%s\n" (List.nth (Str.bounded_split (Str.regexp " ") inp 3) 2);
+				Printf.fprintf oc "%s" (multiline_user_input note_string);
 				close_out oc;
 				print_string "File updated"
 			else
