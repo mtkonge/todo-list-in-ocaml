@@ -74,8 +74,10 @@ let rec todo () =
 
 			todo ()
 		| "read" ->
-			print_string (note_contents (List.nth args 1));
-
+			if (note_exists (List.nth args 1)) then begin
+				print_string (note_contents (List.nth args 1));
+			end else
+				print_string "File doesn't exist\n";
 			todo ()
 		| "edit" ->
 			let note = List.nth args 1 in
